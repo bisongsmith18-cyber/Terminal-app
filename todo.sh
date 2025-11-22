@@ -1,6 +1,6 @@
 #!/bin/bash
-TODO_FILE="tasks.txt" # Stores the tasks in a hidden file in your home directory
-# Ensure the TODO file exists
+TODO_FILE="tasks.txt" 
+
 initialize() {
   if [ ! -f "$TODO_FILE" ]; then
     touch "$TODO_FILE"
@@ -19,7 +19,7 @@ view_tasks() {
     echo "No pending tasks."
   else
     echo "Your To-Do List:"
-    cat -n "$TODO_FILE" # Displays tasks with line numbers
+    cat -n "$TODO_FILE" 
   fi
 }
 remove_task() {
@@ -31,11 +31,11 @@ remove_task() {
     echo "Error: Task number must be an integer."
     return 1
   fi
-  # Use sed to delete the specified line
+  
   sed -i "${1}d" "tasks.txt"
   echo "Task $1 removed."
 }
-# Main script logic
+
 initialize
 case "$1" in
   add)
