@@ -54,7 +54,8 @@ clear)
     if [[ ! -s "$FILE" ]]; then
         echo -e "${CYAN} Task list already empty.${RESET}"
     else
-        > "$FILE"
+        : > "$FILE"
+
         echo -e "${RED}All tasks cleared!${RESET}"
     fi
     ;;
