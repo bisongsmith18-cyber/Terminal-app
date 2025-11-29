@@ -1,55 +1,67 @@
 #!/bin/bash
-TODO_FILE="tasks.txt" 
 
-initialize() {
-  if [ ! -f "$TODO_FILE" ]; then
-    touch "$TODO_FILE"
-  fi
-}
-add_task() {
-  if [ -z "$1" ]; then
-    echo "Usage: add <task description>"
-    return 1
-  fi
-  echo "$(date) - $1" >> "$TODO_FILE"
-  echo "Task added: $1"
-}
-view_tasks() {
-  if [ ! -s "$TODO_FILE" ]; then
-    echo "No pending tasks."
-  else
-    echo "Your To-Do List:"
-    cat -n "$TODO_FILE" 
-  fi
-}
-remove_task() {
-  if [ -z "$1" ]; then
-    echo "Usage: remove <task_number>"
-    return 1
-  fi
-  if ! [[ "$1" =~ ^[0-9]+$ ]]; then
-    echo "Error: Task number must be an integer."
-    return 1
-  fi
-  
-  sed -i "${1}d" "tasks.txt"
-  echo "Task $1 removed."
-}
+FILE="tasks.txt"
 
-initialize
+GREEN="\e[32m"
+RED="\e[31m"
+YELLOW="\e[33m"
+CYAN="\e[36m"
+RESET="\e[0m"
+
+[[ ! -f "$FILE" ]] && touch "$FILE"
+
+if [[ -z "$1" ]]; then
+    echo -e "${YELLOW}Usage:${RESET} ./todo.sh {add|list|del|clear} [task/number]"
+    exit 1
+fi
+
 case "$1" in
-  add)
-    shift
-    add_task "$@"
+
+add)
+    [[ -z "$2" ]] && echo -e "${RED}Error:${RESET} No task provided." && exit 1
+
+    TIMESTAMP=$(date "+%Y-%m-%d %H:%M")
+    echo "[$TIMESTAMP] $2" >> "$FILE"
+
+    echo -e "${GREEN} Task added:${RESET} $2"
+    echo -e "${CYAN} Time:${RESET} $TIMESTAMP"
     ;;
-  list)
-    view_tasks
+
+list)
+    if [[ ! -s "$FILE" ]]; then
+        echo -e "${CYAN}No tasks found.${RESET}"
+    else
+        echo -e "${CYAN}Your Tasks:${RESET}"
+        nl -w2 -s'. ' "$FILE"
+    fi
     ;;
-  remove)
-    shift
-    remove_task "$@"
+
+del)
+    [[ -z "$2" ]] && echo -e "${RED}Error:${RESET} Provide a task number to delete." && exit 1
+
+    TOTAL=$(wc -l < "$FILE")
+
+    if (( $2 < 1 || $2 > TOTAL )); then
+        echo -e "${RED} Error:${RESET} Task number does not exist."
+        exit 1
+    fi
+
+    sed -i "${2}d" "$FILE"
+    echo -e "${GREEN} Task $2 deleted.${RESET}"
     ;;
-  *)
-    echo "Usage: todo.sh [add <task>] | [list] | [remove <task_number>]"
+
+clear)
+    if [[ ! -s "$FILE" ]]; then
+        echo -e "${CYAN} Task list already empty.${RESET}"
+    else
+        > "$FILE"
+        echo -e "${RED}All tasks cleared!${RESET}"
+    fi
     ;;
+
+*)
+    echo -e "${RED} Invalid command.${RESET}"
+    echo -e "${YELLOW}Usage:${RESET} ./todo.sh {add|list|del|clear}"
+    ;;
+
 esac
