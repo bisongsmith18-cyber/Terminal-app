@@ -1,1 +1,1 @@
-# Terminal-app
+# Terminal-to- do -list Buy milk & Finish homework
